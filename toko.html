@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toko Homili - Sabda & Renungan</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        .toko-section {
+            padding: 40px 10%;
+            text-align: center;
+        }
+        
+        .toko-title {
+            color: #2e4f4f;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .toko-subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .grid-produk {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .produk-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-top: 5px solid #2e4f4f;
+            transition: transform 0.2s ease;
+        }
+
+        .produk-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .produk-box h2 {
+            color: #2e4f4f;
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+        }
+
+        .produk-box p {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .harga {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #a4907c;
+            margin-bottom: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-wa-direct {
+            background-color: transparent;
+            color: #2e4f4f;
+            border: 2px solid #2e4f4f;
+            text-align: center;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-wa-direct:hover {
+            background-color: #2e4f4f;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Sabda & Renungan</div>
+        <nav>
+            <a href="index.html">Beranda</a>
+            <a href="analisis.html">Analisis Kitab Suci</a>
+            <a href="toko.html">Beli Homili</a>
+        </nav>
+    </header>
+
+    <main class="toko-section">
+        <h1 class="toko-title">Katalog Produk Digital</h1>
+        <p class="toko-subtitle">Dapatkan draf homili dan analisis teks Kitab Suci berkualitas untuk menunjang pelayanan Anda.</p>
+        
+        <div class="grid-produk">
+            
+            <!-- Produk 1 -->
+            <div class="produk-box">
+                <div>
+                    <h2>Paket Homili Masa Prapaskah</h2>
+                    <p>Kumpulan 10 draf homili mendalam untuk seluruh masa refleksi Prapaskah (Tahun C), lengkap dengan referensi pembacaan ayat dan penekanan pastoral.</p>
+                </div>
+                <div>
+                    <div class="harga">Rp 50.000</div>
+                    <div class="button-group">
+                        <a href="billing.html" class="btn" style="margin: 0; text-align: center; display: block;">Beli Sekarang</a>
+                        <a href="https://api.whatsapp.com/send?phone=6289518296988&text=Halo%20Admin%2C%20saya%20tertarik%20tanya%20mengenai%20*Paket%20Homili%20Masa%20Prapaskah*." 
+                           class="btn-wa-direct" 
+                           target="_blank">Tanya via WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produk 2 -->
+            <div class="produk-box">
+                <div>
+                    <h2>Paket Homili Masa Paskah</h2>
+                    <p>Kumpulan 8 draf homili tematis untuk merayakan sukacita Kebangkitan Kristus, dirancang agar relevan bagi dinamika umat paroki di masa kini.</p>
+                </div>
+                <div>
+                    <div class="harga">Rp 60.000</div>
+                    <div class="button-group">
+                        <a href="billing.html" class="btn" style="margin: 0; text-align: center; display: block;">Beli Sekarang</a>
+                        <a href="https://api.whatsapp.com/send?phone=6289518296988&text=Halo%20Admin%2C%20saya%20tertarik%20tanya%20mengenai%20*Paket%20Homili%20Masa%20Paskah*." 
+                           class="btn-wa-direct" 
+                           target="_blank">Tanya via WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produk 3 -->
+            <div class="produk-box">
+                <div>
+                    <h2>Analisa Teks Kitab Suci Tematis</h2>
+                    <p>Paket panduan analisa mendalam teks Kitab Suci eksegesis dan hermeneutika dasar untuk para pewarta sabda, katekis, maupun prodiakon.</p>
+                </div>
+                <div>
+                    <div class="harga">Rp 75.000</div>
+                    <div class="button-group">
+                        <a href="billing.html" class="btn" style="margin: 0; text-align: center; display: block;">Beli Sekarang</a>
+                        <a href="https://api.whatsapp.com/send?phone=6289518296988&text=Halo%20Admin%2C%20saya%20tertarik%20tanya%20mengenai%20*Analisa%20Teks%20Kitab%20Suci*." 
+                           class="btn-wa-direct" 
+                           target="_blank">Tanya via WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- PRODUK BARU 4 (EDIT DI SINI UNTUK NANTI)  -->
+            <!-- ========================================== -->
+            <div class="produk-box">
+                <div>
+                    <!-- EDIT: Judul Analisis Baru -->
+                    <h2>Analisis Baru: Surat Roma Bab 8</h2>
+                    <!-- EDIT: Deskripsi Analisis Baru -->
+                    <p>Ulasan eksegesis mendalam mengenai makna hidup dalam Roh, penderitaan masa kini, dan kemenangan iman Kristen berdasarkan ulasan teologis klasik.</p>
+                </div>
+                <div>
+                    <!-- EDIT: Harga Analisis Baru -->
+                    <div class="harga">Rp 45.000</div>
+                    <div class="button-group">
+                        <a href="billing.html" class="btn" style="margin: 0; text-align: center; display: block;">Beli Sekarang</a>
+                        
+                        <!-- EDIT: Teks setelah "mengenai%20*" (ganti dengan judul produk Anda) -->
+                        <a href="https://api.whatsapp.com/send?phone=6289518296988&text=Halo%20Admin%2C%20saya%20tertarik%20tanya%20mengenai%20*Analisis%20Surat%20Roma%20Bab%208*." 
+                           class="btn-wa-direct" 
+                           target="_blank">Tanya via WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+            <!-- ========================================== -->
+
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sabda & Renungan. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>

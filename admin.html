@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Sabda & Renungan</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Mengubungkan SDK Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        .admin-section {
+            padding: 40px 10%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .admin-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+        }
+
+        .admin-title {
+            color: #2e4f4f;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #f7f5f0;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #2e4f4f;
+            color: white;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-right: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-edit { background-color: #a4907c; color: white; }
+        .btn-edit:hover { background-color: #8d7b68; }
+        .btn-delete { background-color: #e74c3c; color: white; }
+        .btn-delete:hover { background-color: #c0392b; }
+
+        #loginArea {
+            max-width: 400px;
+            margin: 100px auto;
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Kunci Login Admin (Password: admin123) -->
+    <div id="loginArea">
+        <h2 style="color: #2e4f4f; margin-bottom: 20px;">Masuk Sebagai Admin</h2>
+        <input type="password" id="passwordInput" placeholder="Masukkan Password" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; text-align: center;"><br>
+        <button class="btn" onclick="checkPassword()" style="width: 100%; border: none; cursor: pointer;">Masuk</button>
+    </div>
+
+    <!-- Panel Kontrol Utama -->
+    <div id="adminPanel" style="display: none;">
+        <header>
+            <div class="logo">Dasbor Admin</div>
+            <nav>
+                <a href="analisis.html">Lihat Halaman Analisis</a>
+                <a href="#" onclick="logout()" style="color: #e74c3c; font-weight: bold;">Keluar</a>
+            </nav>
+        </header>
+
+        <main class="admin-section">
+            
+            <div class="admin-box">
+                <h2 id="formTitle" class="admin-title">Unggah File Analisis Baru</h2>
+                <form id="articleForm">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="form-group">
+                        <label>Kategori / Meta Teks</label>
+                        <input type="text" id="meta" placeholder="Contoh: Eksegesis Teologis • Kejadian 1-2" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Judul Analisis</label>
+                        <input type="text" id="title" placeholder="Masukkan judul artikel" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Harga Jual File PDF/DOCX (Rp)</label>
+                        <input type="number" id="price" placeholder="Contoh: 45000 (Isi 0 jika Gratis)" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload File Dokumen (PDF / DOCX - Maksimal 1MB)</label>
+                        <input type="file" id="fileInput" accept=".pdf,.docx">
+                        <p id="fileStatus" style="font-size: 0.85rem; color: #666; margin-top: 5px;">Belum ada file yang dipilih.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kutipan Ayat Kitab Suci (Opsional)</label>
+                        <input type="text" id="quote" placeholder='Contoh: "Sebab pada awal dunia..." (Markus 10:6)'>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pratinjau / Isi Analisis Singkat</label>
+                        <textarea id="preview" rows="4" placeholder="Tuliskan ulasan analisis di sini..." required></textarea>
+                    </div>
+
+                    <button type="submit" id="btnSubmit" class="btn" style="border: none; cursor: pointer; width: 100%; padding: 12px;">Simpan Artikel & File</button>
+                    <button type="button" id="btnCancel" class="btn btn-secondary" style="border: none; cursor: pointer; width: 100%; padding: 12px; margin-top: 10px; display: none;" onclick="resetForm()">Batal Edit</button>
+                </form>
+            </div>
+
+            <div class="admin-box">
+                <h2 class="admin-title">Kelola Semua File Analisis</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kategori</th>
+                                <th>Judul</th>
+                                <th>Harga</th>
+                                <th>File Terlampir</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Inisialisasi Supabase Client Resmi Anda
+        const { createClient } = supabase;
+        const supabaseUrl = "https://wqezpcwamceoxdsyauwk.supabase.co";
+        const supabaseKey = "sb_publishable_B2okZ9YtoQLw9KwwIAgxcA_Yz7Y5vHv";
+        const _supabase = createClient(supabaseUrl, supabaseKey);
+
+        let selectedFile = null;
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileStatus').innerText = `File siap diunggah: ${file.name}`;
+            }
+        });
+
+        function checkPassword() {
+            const pass = document.getElementById('passwordInput').value;
+            if (pass === "admin123") {
+                document.getElementById('loginArea').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadAdminArticles();
+            } else {
+                alert("Password Salah!");
+            }
+        }
+
+        function logout() {
+            document.getElementById('passwordInput').value = "";
+            document.getElementById('loginArea').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        async function loadAdminArticles() {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = "<tr><td colspan='5'>Memuat data...</td></tr>";
+
+            const { data: articles, error } = await _supabase
+                .from('analisis_articles')
+                .select('*')
+                .order('id', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                alert("Gagal memuat data dari cloud database Supabase.");
+                return;
+            }
+
+            tbody.innerHTML = "";
+            articles.forEach(article => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${article.meta}</td>
+                    <td style="font-weight: bold; color: #2e4f4f;">${article.title}</td>
+                    <td>Rp ${parseInt(article.price).toLocaleString('id-ID')}</td>
+                    <td>${article.file_name ? article.file_name : 'Tidak ada file'}</td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="editArticle(${article.id})">Edit</button>
+                        <button class="btn-action btn-delete" onclick="deleteArticle(${article.id})">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.getElementById('articleForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('editId').value;
+            const meta = document.getElementById('meta').value;
+            const title = document.getElementById('title').value;
+            const price = document.getElementById('price').value;
+            const quote = document.getElementById('quote').value;
+            const preview = document.getElementById('preview').value;
+
+            let fileUrl = "";
+            let fileName = "";
+
+            if (selectedFile) {
+                fileName = Date.now() + "_" + selectedFile.name;
+                
+                // 1. Upload ke Storage Bucket analisis-files
+                const { data: uploadData, error: uploadError } = await _supabase.storage
+                    .from('analisis-files')
+                    .upload(fileName, selectedFile);
+
+                if (uploadError) {
+                    alert("Gagal mengunggah file dokumen: " + uploadError.message);
+                    return;
+                }
+
+                // 2. Dapatkan link download publiknya
+                const { data: publicUrlData } = _supabase.storage
+                    .from('analisis-files')
+                    .getPublicUrl(fileName);
+                
+                fileUrl = publicUrlData.publicUrl;
+            }
+
+            if (editId) {
+                // Mode Update
+                const updateData = { meta, title, price, quote, preview };
+                if (fileUrl) {
+                    updateData.file_url = fileUrl;
+                    updateData.file_name = fileName;
+                }
+
+                const { error } = await _supabase
+                    .from('analisis_articles')
+                    .update(updateData)
+                    .eq('id', editId);
+
+                if (error) alert("Gagal mengupdate: " + error.message);
+                else alert("Artikel berhasil diperbarui di cloud!");
+
+            } else {
+                // Mode Insert Baru
+                const { error } = await _supabase
+                    .from('analisis_articles')
+                    .insert([{ 
+                        meta, 
+                        title, 
+                        price, 
+                        quote, 
+                        preview, 
+                        file_url: fileUrl, 
+                        file_name: fileName 
+                    }]);
+
+                if (error) alert("Gagal mengunggah data: " + error.message);
+                else alert("Artikel baru berhasil disimpan di cloud!");
+            }
+
+            resetForm();
+            loadAdminArticles();
+        });
+
+        async function editArticle(id) {
+            const { data: article, error } = await _supabase
+                .from('analisis_articles')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (article) {
+                document.getElementById('editId').value = article.id;
+                document.getElementById('meta').value = article.meta;
+                document.getElementById('title').value = article.title;
+                document.getElementById('price').value = article.price;
+                document.getElementById('quote').value = article.quote || '';
+                document.getElementById('preview').value = article.preview;
+
+                document.getElementById('fileStatus').innerText = article.file_name ? `File saat ini: ${article.file_name}` : "Belum ada file terlampir.";
+                selectedFile = null;
+
+                document.getElementById('formTitle').innerText = "Edit Artikel: " + article.title;
+                document.getElementById('btnSubmit').innerText = "Perbarui Artikel";
+                document.getElementById('btnCancel').style.display = "block";
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('articleForm').reset();
+            document.getElementById('editId').value = "";
+            document.getElementById('formTitle').innerText = "Unggah File Analisis Baru";
+            document.getElementById('btnSubmit').innerText = "Simpan Artikel & File";
+            document.getElementById('btnCancel').style.display = "none";
+            document.getElementById('fileStatus').innerText = "Belum ada file yang dipilih.";
+            selectedFile = null;
+        }
+
+        async function deleteArticle(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus artikel ini?")) {
+                const { data: article } = await _supabase
+                    .from('analisis_articles')
+                    .select('file_name')
+                    .eq('id', id)
+                    .single();
+
+                if (article && article.file_name) {
+                    await _supabase.storage
+                        .from('analisis-files')
+                        .remove([article.file_name]);
+                }
+
+                const { error } = await _supabase
+                    .from('analisis_articles')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) alert("Gagal menghapus: " + error.message);
+                else {
+                    alert("Artikel berhasil dihapus.");
+                    loadAdminArticles();
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>

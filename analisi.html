@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisis Kitab Suci - Sabda & Renungan</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Mengubungkan SDK Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        .analisis-section {
+            padding: 40px 10%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .header-title {
+            color: #2e4f4f;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .header-subtitle {
+            color: #666;
+            margin-bottom: 50px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .article-card {
+            background: white;
+            padding: 35px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            border-left: 5px solid #a4907c;
+        }
+
+        .article-meta {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .price-tag {
+            font-weight: bold;
+            color: #a4907c;
+        }
+
+        .article-card h2 {
+            color: #2e4f4f;
+            font-size: 1.7rem;
+            margin-bottom: 15px;
+        }
+
+        .article-preview {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .scripture-quote {
+            background-color: #fcfbfa;
+            padding: 15px 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #444;
+            border-left: 3px solid #2e4f4f;
+        }
+
+        .btn-readmore {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #2e4f4f;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+            margin-right: 10px;
+        }
+
+        .btn-readmore:hover {
+            background-color: #1a3030;
+        }
+
+        .btn-download {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #a4907c;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .btn-download:hover {
+            background-color: #8d7b68;
+        }
+
+        .no-article {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            background: white;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Sabda & Renungan</div>
+        <nav>
+            <a href="index.html">Beranda</a>
+            <a href="analisis.html">Analisis Kitab Suci</a>
+            <a href="toko.html">Beli Homili</a>
+            <a href="admin.html" style="color: #a4907c; font-weight: bold;">Halaman Admin</a>
+        </nav>
+    </header>
+
+    <main class="analisis-section">
+        <h1 class="header-title">Analisis & Eksegesis Tekstual</h1>
+        <p class="header-subtitle">Ulasan mendalam mengenai makna teologis dan konteks historis dari ayat-ayat pilihan Kitab Suci.</p>
+
+        <div id="articleContainer"></div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sabda & Renungan. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Inisialisasi Supabase Client Resmi Anda
+        const { createClient } = supabase;
+        const supabaseUrl = "https://wqezpcwamceoxdsyauwk.supabase.co";
+        const supabaseKey = "sb_publishable_B2okZ9YtoQLw9KwwIAgxcA_Yz7Y5vHv";
+        const _supabase = createClient(supabaseUrl, supabaseKey);
+
+        async function loadArticles() {
+            const container = document.getElementById('articleContainer');
+            container.innerHTML = "<p style='text-align: center; color: #888;'>Memuat ulasan analisis...</p>";
+
+            const { data: parsedArticles, error } = await _supabase
+                .from('analisis_articles')
+                .select('*')
+                .order('id', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                container.innerHTML = `<div class="no-article"><p>Gagal memuat artikel dari cloud database.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = "";
+
+            if (parsedArticles.length === 0) {
+                container.innerHTML = `<div class="no-article"><p>Belum ada artikel analisis yang diunggah.</p></div>`;
+                return;
+            }
+
+            parsedArticles.forEach(article => {
+                const card = document.createElement('article');
+                card.className = 'article-card';
+                
+                const hargaFormat = parseInt(article.price) > 0 ? `Rp ${parseInt(article.price).toLocaleString('id-ID')}` : "GRATIS";
+                
+                let tombolAksi = "";
+                if (parseInt(article.price) > 0) {
+                    tombolAksi = `<a href="billing.html?produk=${encodeURIComponent(article.title + ' (' + hargaFormat + ')')}" class="btn-readmore">Beli File PDF (${hargaFormat})</a>`;
+                } else if (article.file_url) {
+                    tombolAksi = `<a href="${article.file_url}" download="${article.file_name}" class="btn-download" target="_blank">Unduh Dokumen Gratis</a>`;
+                } else {
+                    tombolAksi = `<span style="color: #888; font-size: 0.9rem;">Analisis Gratis (Tanpa File Lampiran)</span>`;
+                }
+
+                card.innerHTML = `
+                    <div class="article-meta">
+                        <span>${article.meta}</span>
+                        <span class="price-tag">${hargaFormat}</span>
+                    </div>
+                    <h2>${article.title}</h2>
+                    <p class="article-preview">${article.preview}</p>
+                    ${article.quote ? `<div class="scripture-quote">${article.quote}</div>` : ''}
+                    <div style="margin-top: 20px;">
+                        ${tombolAksi}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.onload = loadArticles;
+    </script>
+
+</body>
+</html>

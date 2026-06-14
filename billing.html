@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing & Checkout - Sabda & Renungan</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Mengubungkan SDK Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Sabda & Renungan</div>
+        <nav>
+            <a href="index.html">Beranda</a>
+            <a href="analisis.html">Analisis Kitab Suci</a>
+            <a href="toko.html">Beli Homili</a>
+        </nav>
+    </header>
+
+    <main class="container" style="flex-direction: column; padding: 40px 10%;">
+        <div class="billing-container" style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); max-width: 600px; width: 100%; text-align: left;">
+            <h2 style="color: #2e4f4f; margin-bottom: 20px; text-align: center;">Informasi Tagihan (Billing)</h2>
+            
+            <form id="billingForm">
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Pilih Homili / Analisis</label>
+                    <select id="produk" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" required>
+                        <option value="">-- Pilih Paket Homili / Analisis --</option>
+                        
+                        <!-- Produk Utama Toko Fisik -->
+                        <option value="Homili Masa Prapaskah (Rp 50.000)">Homili Masa Prapaskah - Rp 50.000</option>
+                        <option value="Homili Masa Paskah (Rp 60.000)">Homili Masa Paskah - Rp 60.000</option>
+                        <option value="Analisa Teks Kitab Suci Tematis (Rp 75.000)">Analisa Teks Kitab Suci Tematis - Rp 75.000</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Nama Lengkap</label>
+                    <input type="text" id="nama" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Nama Anda" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Alamat Email</label>
+                    <input type="email" id="email" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="nama@email.com" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Nomor WhatsApp</label>
+                    <input type="tel" id="whatsapp" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Contoh: 08123456789" required>
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%; border: none; cursor: pointer; font-size: 1rem; padding: 15px;">Konfirmasi & Bayar via WhatsApp</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sabda & Renungan. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Inisialisasi Supabase Client Resmi Anda
+        const { createClient } = supabase;
+        const supabaseUrl = "https://wqezpcwamceoxdsyauwk.supabase.co";
+        const supabaseKey = "sb_publishable_B2okZ9YtoQLw9KwwIAgxcA_Yz7Y5vHv";
+        const _supabase = createClient(supabaseUrl, supabaseKey);
+
+        async function loadProductsDropdown() {
+            const selectElement = document.getElementById('produk');
+            
+            // Mengambil produk dinamis dari tabel Supabase Anda
+            const { data: articles, error } = await _supabase
+                .from('analisis_articles')
+                .select('title, price')
+                .gt('price', 0); // Ambil hanya yang berbayar
+
+            if (!error && articles) {
+                articles.forEach(article => {
+                    const hargaFormat = `Rp ${parseInt(article.price).toLocaleString('id-ID')}`;
+                    const optionValue = `${article.title} (${hargaFormat})`;
+                    
+                    const option = document.createElement('option');
+                    option.value = optionValue;
+                    option.textContent = `${article.title} - ${hargaFormat}`;
+                    selectElement.appendChild(option);
+                });
+            }
+
+            // Memilih otomatis produk jika diarahkan dari link halaman analisis
+            const urlParams = new URLSearchParams(window.location.search);
+            const autoSelectedProduct = urlParams.get('produk');
+            
+            if (autoSelectedProduct) {
+                selectElement.value = decodeURIComponent(autoSelectedProduct);
+            }
+        }
+
+        document.getElementById('billingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const produk = document.getElementById('produk').value;
+            const nama = document.getElementById('nama').value;
+            const email = document.getElementById('email').value;
+            const whatsappInput = document.getElementById('whatsapp').value;
+
+            // Nomor WA Bisnis Resmi Anda
+            const nomorAdmin = "6289518296988"; 
+
+            const teksPesan = `*🧾 NOTA PEMESANAN BARU (SABDA %26 RENUNGAN)*%0A` +
+                              `----------------------------------------%0A` +
+                              `*Produk:* ${produk}%0A` +
+                              `*Nama:* ${nama}%0A` +
+                              `*Email:* ${email}%0A` +
+                              `*WhatsApp:* ${whatsappInput}%0A` +
+                              `----------------------------------------%0A` +
+                              `Mohon informasi metode transfer pembayaran dan pengiriman file homili/analisis. Terima kasih.`;
+
+            window.open(`https://api.whatsapp.com/send?phone=${nomorAdmin}&text=${teksPesan}`, '_blank');
+        });
+
+        window.onload = loadProductsDropdown;
+    </script>
+
+</body>
+</html>
